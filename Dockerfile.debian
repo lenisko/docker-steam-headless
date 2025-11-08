@@ -171,6 +171,7 @@ RUN \
     xauth \
     xbindkeys \
     xclip \
+    xcvt \
     xdotool \
     xfonts-base \
     xinit \
