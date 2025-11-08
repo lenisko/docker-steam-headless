@@ -5,7 +5,7 @@ LABEL maintainer="Josh.5 <jsunnex@gmail.com>"
 ARG DEBIAN_FRONTEND=noninteractive
 RUN \
     echo "**** Update apt database ****" \
-    && sed -i '/^Components: main/ s/$/ contrib non-free/' /etc/apt/sources.list.d/debian.sources \
+    && sed -i '/^Components: main/ s/$/ contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources \
     && \
     echo
 
@@ -67,7 +67,7 @@ RUN \
     jq \
     less \
     man-db \
-    mlocate \
+    plocate \
     nano \
     net-tools \
     p7zip-full \
@@ -171,9 +171,7 @@ RUN \
     xauth \
     xbindkeys \
     xclip \
-    xcvt \
     xdotool \
-    xfishtank \
     xfonts-base \
     xinit \
     xorg \
@@ -248,23 +246,32 @@ RUN \
     /usr/share/applications/xfce4-about.desktop \
     /usr/share/applications/xfce4-session-logout.desktop \
     # Hide these apps. They can be displayed if a user really wants them.
-    && sed -i '/[Desktop Entry]/a\NoDisplay=true' /usr/share/applications/xfce4-accessibility-settings.desktop \
-    && sed -i '/[Desktop Entry]/a\NoDisplay=true' /usr/share/applications/xfce4-color-settings.desktop \
-    && sed -i '/[Desktop Entry]/a\NoDisplay=true' /usr/share/applications/xfce4-mail-reader.desktop \
-    && sed -i '/[Desktop Entry]/a\NoDisplay=true' /usr/share/applications/xfce4-web-browser.desktop \
-    && sed -i '/[Desktop Entry]/a\NoDisplay=true' /usr/share/applications/vim.desktop \
-    && sed -i '/[Desktop Entry]/a\NoDisplay=true' /usr/share/applications/thunar-settings.desktop \
-    && sed -i '/[Desktop Entry]/a\NoDisplay=true' /usr/share/applications/thunar.desktop \
-    && sed -i '/[Desktop Entry]/a\NoDisplay=true' /usr/share/applications/pavucontrol.desktop \
-    && sed -i '/[Desktop Entry]/a\NoDisplay=true' /usr/share/applications/x11vnc.desktop \
-    && sed -i '/[Desktop Entry]/a\NoDisplay=true' /usr/share/applications/display-im6.q16.desktop \
-    # These are named specifically for Debain
-    && sed -i '/[Desktop Entry]/a\NoDisplay=true' /usr/share/applications/debian-xterm.desktop \
-    && sed -i '/[Desktop Entry]/a\NoDisplay=true' /usr/share/applications/debian-uxterm.desktop \
+    && for desktop_file in \
+        xfce4-accessibility-settings.desktop \
+        xfce4-color-settings.desktop \
+        xfce4-mail-reader.desktop \
+        xfce4-web-browser.desktop \
+        vim.desktop \
+        thunar-settings.desktop \
+        thunar.desktop \
+        pavucontrol.desktop \
+        x11vnc.desktop \
+        display-im6.q16.desktop \
+        debian-xterm.desktop \
+        debian-uxterm.desktop; do \
+            if [ -f "/usr/share/applications/$desktop_file" ]; then \
+                sed -i '/[Desktop Entry]/a\NoDisplay=true' "/usr/share/applications/$desktop_file"; \
+            fi; \
+        done \
     # Force these apps to be "System" Apps rather than "Categories=System;Utility;Core;GTK;Filesystem;"
-    && sed -i 's/^Categories=.*$/Categories=System;/' /usr/share/applications/xfce4-appfinder.desktop \
-    && sed -i 's/^Categories=.*$/Categories=System;/' /usr/share/applications/thunar-bulk-rename.desktop \
-    && sed -i 's/^Categories=.*$/Categories=System;/' /usr/share/applications/org.gnome.gedit.desktop \
+    && for desktop_file in \
+        xfce4-appfinder.desktop \
+        thunar-bulk-rename.desktop \
+        org.gnome.gedit.desktop; do \
+            if [ -f "/usr/share/applications/$desktop_file" ]; then \
+                sed -i 's/^Categories=.*$/Categories=System;/' "/usr/share/applications/$desktop_file"; \
+            fi; \
+        done \
     && \
     echo "**** Install WoL Manager requirements ****" \
     && apt-get install -y \
@@ -398,7 +405,7 @@ RUN \
     gstreamer1.0-vaapi \
     gstreamer1.0-x \
     libgstreamer1.0-0 \
-    libncursesw5 \
+    libncursesw6 \
     libopenal1 \
     libsdl-image1.2 \
     libsdl-ttf2.0-0 \
@@ -468,7 +475,6 @@ RUN \
     echo "**** Install Steam ****" \
     && apt-get install -y --no-install-recommends \
     steam-installer \
-    gamescope \
     && ln -sf /usr/games/steam /usr/bin/steam \
     && \
     echo "**** Section cleanup ****" \
